@@ -16,7 +16,8 @@ declare global {
 function resolveDatabaseUrl() {
   const isServerless =
     Boolean(process.env.VERCEL) ||
-    Boolean(process.env.NETLIFY);
+    Boolean(process.env.NETLIFY) ||
+    process.env.NODE_ENV === "production";
 
   // On serverless platforms we always use a writable sqlite DB under /tmp.
   // This avoids mismatches between whatever `DATABASE_URL` is set to (often Postgres)
@@ -53,7 +54,9 @@ const databaseUrl = resolveDatabaseUrl();
 // Ensure prisma has a sqlite URL in env when we are using the sqlite fallback.
 // Prisma CLI + migrate deploy use this value.
 if (
-  (Boolean(process.env.VERCEL) || Boolean(process.env.NETLIFY)) ||
+  (Boolean(process.env.VERCEL) ||
+    Boolean(process.env.NETLIFY) ||
+    process.env.NODE_ENV === "production") ||
   (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim().length === 0)
 ) {
   process.env.DATABASE_URL = `file:${databaseUrl}`;
@@ -61,13 +64,24 @@ if (
 
 function ensureSqliteMigratedOnce() {
   // Only mutate DB in serverless.
-  if (!process.env.VERCEL && !process.env.NETLIFY) return;
+  const isServerless =
+    Boolean(process.env.VERCEL) ||
+    Boolean(process.env.NETLIFY) ||
+    process.env.NODE_ENV === "production";
+  if (!isServerless) return;
   if (globalThis.__mindcare_prisma_sqlite_migrated__) return;
 
   let migrated = false;
   try {
     if (!fs.existsSync(path.dirname(databaseUrl))) {
       fs.mkdirSync(path.dirname(databaseUrl), { recursive: true });
+    }
+
+    // Ensure sqlite file exists so adapter-better-sqlite3 can open it.
+    if (!fs.existsSync(databaseUrl)) {
+      // Touch file.
+      const fd = fs.openSync(databaseUrl, "a");
+      fs.closeSync(fd);
     }
 
     // Use the local prisma binary to avoid `npx` issues in restricted environments.
