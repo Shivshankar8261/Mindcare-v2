@@ -2,7 +2,6 @@
 
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
@@ -45,18 +44,6 @@ export default function LoginPage() {
 
       <div className="relative z-10 px-4 pb-14 flex flex-col items-center">
         <div className="w-full max-w-md glass-card p-6 sm:p-8 shadow-[0_20px_50px_rgba(11,18,32,0.12)]">
-          <div className="flex justify-center mb-5">
-            <div className="rounded-2xl border border-white/20 bg-white/40 p-3 shadow-sm">
-              <Image
-                src="/illustrations/mindcare-mascot.svg"
-                alt=""
-                width={88}
-                height={88}
-                aria-hidden
-              />
-            </div>
-          </div>
-
           <div className="mb-6 text-center sm:text-left">
             <h1 className="text-3xl sm:text-4xl font-display tracking-tight text-foreground">
               Welcome back

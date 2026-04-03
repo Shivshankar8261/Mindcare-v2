@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description:
     "A student emotional wellness companion: check in with your mood, access supportive resources, and build healthier habits with privacy in mind.",
   icons: {
-    icon: "/illustrations/mindcare-mascot.svg",
-    apple: "/illustrations/mindcare-mascot.svg",
+    icon: "/mindcare-logo.png",
+    apple: "/mindcare-logo.png",
   },
 };
 

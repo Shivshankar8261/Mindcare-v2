@@ -238,10 +238,11 @@ export default function LandingPage() {
             >
               <div className="flex flex-col items-center text-center gap-3">
                 <Image
-                  src="/illustrations/mindcare-mascot.svg"
-                  alt="MindCare friendly mascot"
-                  width={160}
-                  height={160}
+                  src="/mindcare-logo.png"
+                  alt="MindCare — Vidyashilp University logo"
+                  width={1024}
+                  height={559}
+                  className="w-full max-w-sm h-auto"
                   priority={false}
                 />
                 <div className="text-sm text-muted">What you get</div>
