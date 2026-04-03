@@ -14,6 +14,17 @@ declare global {
 }
 
 function resolveDatabaseUrl() {
+  const isServerless =
+    Boolean(process.env.VERCEL) ||
+    Boolean(process.env.NETLIFY);
+
+  // On serverless platforms we always use a writable sqlite DB under /tmp.
+  // This avoids mismatches between whatever `DATABASE_URL` is set to (often Postgres)
+  // and the fact that this prototype's Prisma schema is SQLite-based.
+  if (isServerless) {
+    return "/tmp/mindcare-dev.db";
+  }
+
   const databaseUrlRaw = process.env.DATABASE_URL ?? "";
   const trimmed = databaseUrlRaw.trim();
 
@@ -34,49 +45,44 @@ function resolveDatabaseUrl() {
   // - Vercel / Netlify serverless runs with a read-only bundle filesystem
   // - so file-based sqlite must live under /tmp to be writable
   // - if DATABASE_URL isn't set, we bootstrap sqlite + migrations automatically.
-  const isServerless =
-    Boolean(process.env.VERCEL) ||
-    Boolean(process.env.NETLIFY) ||
-    process.env.NODE_ENV === "production";
-
-  const dbFile = isServerless ? "/tmp/mindcare-dev.db" : path.join(process.cwd(), "dev.db");
-  return dbFile;
+  return path.join(process.cwd(), "dev.db");
 }
 
 const databaseUrl = resolveDatabaseUrl();
 
 // Ensure prisma has a sqlite URL in env when we are using the sqlite fallback.
 // Prisma CLI + migrate deploy use this value.
-if ((!process.env.DATABASE_URL || process.env.DATABASE_URL.trim().length === 0) && databaseUrl) {
+if (
+  (Boolean(process.env.VERCEL) || Boolean(process.env.NETLIFY)) ||
+  (!process.env.DATABASE_URL || process.env.DATABASE_URL.trim().length === 0)
+) {
   process.env.DATABASE_URL = `file:${databaseUrl}`;
 }
 
 function ensureSqliteMigratedOnce() {
-  const shouldMigrate =
-    Boolean(process.env.VERCEL) ||
-    Boolean(process.env.NETLIFY) ||
-    !process.env.DATABASE_URL ||
-    process.env.DATABASE_URL.trim().length === 0;
-
-  if (!shouldMigrate) return;
+  // Only mutate DB in serverless.
+  if (!process.env.VERCEL && !process.env.NETLIFY) return;
   if (globalThis.__mindcare_prisma_sqlite_migrated__) return;
 
+  let migrated = false;
   try {
-    // Only attempt migrate when sqlite is file-based (fallback mode).
-    // For serverless we copy DB into /tmp implicitly by choosing that path above.
-    if (!fs.existsSync(databaseUrl)) {
-      // /tmp exists on most hosts, but keep this defensive.
+    if (!fs.existsSync(path.dirname(databaseUrl))) {
       fs.mkdirSync(path.dirname(databaseUrl), { recursive: true });
     }
 
-    execSync("npx prisma migrate deploy", {
+    // Use the local prisma binary to avoid `npx` issues in restricted environments.
+    execSync("node_modules/.bin/prisma migrate deploy", {
       stdio: "ignore",
       env: { ...process.env, DATABASE_URL: `file:${databaseUrl}` },
     });
-  } catch {
-    // If migrations fail, Prisma will surface the real DB error on the first query.
+
+    migrated = true;
+  } catch (err) {
+    // Leave the flag unset so next cold/warm start retries migrations.
+    // eslint-disable-next-line no-console
+    console.error("Prisma migrate deploy failed:", err);
   } finally {
-    globalThis.__mindcare_prisma_sqlite_migrated__ = true;
+    if (migrated) globalThis.__mindcare_prisma_sqlite_migrated__ = true;
   }
 }
 
