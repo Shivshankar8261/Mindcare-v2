@@ -2,6 +2,7 @@ import { PrismaClient } from "../generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 import { execSync } from "node:child_process";
 
 declare global {
@@ -23,7 +24,8 @@ function resolveDatabaseUrl() {
   // This avoids mismatches between whatever `DATABASE_URL` is set to (often Postgres)
   // and the fact that this prototype's Prisma schema is SQLite-based.
   if (isServerless) {
-    return "/tmp/mindcare-dev.db";
+    // Use platform-provided temp directory (Vercel/Netlify variants differ).
+    return path.join(os.tmpdir(), "mindcare-dev.db");
   }
 
   const databaseUrlRaw = process.env.DATABASE_URL ?? "";
