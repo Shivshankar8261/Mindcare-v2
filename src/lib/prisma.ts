@@ -3,7 +3,7 @@ import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 import os from "node:os";
-import { execSync } from "node:child_process";
+import Database from "better-sqlite3";
 
 declare global {
   // eslint-disable-next-line no-var
@@ -86,17 +86,40 @@ function ensureSqliteMigratedOnce() {
       fs.closeSync(fd);
     }
 
-    // Use the local prisma binary to avoid `npx` issues in restricted environments.
-    execSync("node_modules/.bin/prisma migrate deploy", {
-      stdio: "ignore",
-      env: { ...process.env, DATABASE_URL: `file:${databaseUrl}` },
-    });
+    const db = new Database(databaseUrl);
+    try {
+      const hasUserTable = db
+        .prepare(
+          "SELECT name FROM sqlite_master WHERE type = 'table' AND lower(name) = lower('User') LIMIT 1"
+        )
+        .get();
+
+      if (!hasUserTable) {
+        const migrationSqlPath = path.join(
+          process.cwd(),
+          "prisma",
+          "migrations",
+          "20260402082824_init",
+          "migration.sql"
+        );
+        const migrationSql = fs.readFileSync(migrationSqlPath, "utf8");
+        db.exec(migrationSql);
+      }
+    } finally {
+      db.close();
+    }
 
     migrated = true;
   } catch (err) {
-    // Leave the flag unset so next cold/warm start retries migrations.
-    // eslint-disable-next-line no-console
-    console.error("Prisma migrate deploy failed:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    // Harmless race: another invocation created tables first.
+    if (message.includes("already exists")) {
+      migrated = true;
+    } else {
+      // Leave the flag unset so next cold/warm start retries migrations.
+      // eslint-disable-next-line no-console
+      console.error("SQLite bootstrap failed:", err);
+    }
   } finally {
     if (migrated) globalThis.__mindcare_prisma_sqlite_migrated__ = true;
   }
