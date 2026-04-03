@@ -31,7 +31,7 @@ export default function AuthButtons({
       </Link>
       <button
         type="button"
-        onClick={() => signOut({ callbackUrl: "/" })}
+        onClick={() => signOut({ callbackUrl: `${window.location.origin}/` })}
         className="rounded-xl bg-teal px-3 py-2 text-sm font-semibold text-background shadow-tealGlow hover:opacity-95"
       >
         Logout

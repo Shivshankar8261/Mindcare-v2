@@ -1,12 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config, { dev }) => {
-    if (dev) {
-      // Prevent flaky missing-chunk errors in long-running local dev sessions.
-      config.cache = false;
-    }
-    return config;
-  },
+  // Do not set `webpack.cache = false` in dev, and do not set env
+  // `NEXT_DISABLE_WEBPACK_CACHE=1` in npm scripts: both break hashed CSS/chunk
+  // resolution (`layout.css` 404, missing `./682.js` in webpack-runtime).
+  // `npm run dev` clears `.next` + `node_modules/.cache` for a clean graph instead.
 };
 
 export default nextConfig;

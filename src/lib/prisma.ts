@@ -51,7 +51,14 @@ function resolveDatabaseUrl() {
   return path.join(process.cwd(), "dev.db");
 }
 
-const databaseUrl = resolveDatabaseUrl();
+/** Absolute path on disk for the SQLite file (avoids cwd bugs with `file:./dev.db`). */
+function normalizeSqliteFilePath(raw: string): string {
+  const trimmed = raw.trim();
+  if (path.isAbsolute(trimmed)) return trimmed;
+  return path.resolve(process.cwd(), trimmed);
+}
+
+const databaseUrl = normalizeSqliteFilePath(resolveDatabaseUrl());
 
 // Ensure prisma has a sqlite URL in env when we are using the sqlite fallback.
 // Prisma CLI + migrate deploy use this value.
@@ -65,12 +72,9 @@ if (
 }
 
 function ensureSqliteMigratedOnce() {
-  // Only mutate DB in serverless.
-  const isServerless =
-    Boolean(process.env.VERCEL) ||
-    Boolean(process.env.NETLIFY) ||
-    process.env.NODE_ENV === "production";
-  if (!isServerless) return;
+  // Apply `migration.sql` when the DB file exists but has no `User` table.
+  // Serverless always needs this; local dev needs it too if someone never ran
+  // `prisma migrate dev` (otherwise Prisma throws and Next returns 500).
   if (globalThis.__mindcare_prisma_sqlite_migrated__) return;
 
   let migrated = false;

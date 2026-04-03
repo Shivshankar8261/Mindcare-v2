@@ -1,12 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import MindcareI18nProvider from "@/components/providers/I18nProvider";
+import AppProviders from "@/components/providers/AppProviders";
 import { mindcareRootBodyClassName } from "@/lib/mindcareFonts";
 
 export const metadata: Metadata = {
   title: "MindCare — Vidyashilp University",
   description:
     "A student emotional wellness companion: check in with your mood, access supportive resources, and build healthier habits with privacy in mind.",
+  icons: {
+    icon: "/illustrations/mindcare-mascot.svg",
+    apple: "/illustrations/mindcare-mascot.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#F7FAFF",
 };
 
 export default function RootLayout({
@@ -17,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={mindcareRootBodyClassName} suppressHydrationWarning>
-        <MindcareI18nProvider>{children}</MindcareI18nProvider>
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

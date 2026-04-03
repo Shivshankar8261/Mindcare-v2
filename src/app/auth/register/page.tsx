@@ -3,7 +3,11 @@
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { signIn } from "next-auth/react";
+
+import AuthBackdrop from "@/components/auth/AuthBackdrop";
+import AuthBrandingHeader from "@/components/auth/AuthBrandingHeader";
 
 const goalOptions = [
   { id: "ANXIETY", label: "Anxiety & Stress Management" },
@@ -120,31 +124,41 @@ export default function RegisterPage() {
     }
   }
 
+  const inputClass =
+    "w-full rounded-xl border border-white/20 bg-white/60 px-3 py-2.5 text-foreground shadow-sm outline-none transition focus:border-teal/70 focus:ring-2 focus:ring-teal/25";
+
   return (
-    <div className="min-h-[calc(100vh-72px)] px-4 py-10 flex items-center justify-center">
-      <div className="w-full max-w-lg glass-card p-6">
-        <div className="flex items-center justify-center">
-          <Image
-            src="/illustrations/journal-sticker.svg"
-            alt="MindCare journal illustration"
-            width={92}
-            height={92}
-            priority={false}
-          />
-        </div>
-        <div className="mb-6">
-          <h1 className="text-3xl font-display tracking-tight">
-            Student Registration
-          </h1>
-          <p className="mt-2 text-muted">
-            Create your MindCare account using {universityHint}
-          </p>
-        </div>
+    <div className="relative min-h-screen overflow-x-hidden">
+      <AuthBackdrop />
+      <AuthBrandingHeader />
+
+      <div className="relative z-10 px-4 pb-14 flex flex-col items-center">
+        <div className="w-full max-w-lg glass-card p-6 sm:p-8 shadow-[0_20px_50px_rgba(11,18,32,0.12)]">
+          <div className="flex justify-center mb-5">
+            <div className="rounded-2xl border border-white/20 bg-white/40 p-3 shadow-sm">
+              <Image
+                src="/illustrations/journal-sticker.svg"
+                alt=""
+                width={88}
+                height={88}
+                aria-hidden
+              />
+            </div>
+          </div>
+          <div className="mb-6 text-center sm:text-left">
+            <h1 className="text-3xl sm:text-4xl font-display tracking-tight text-foreground">
+              Student Registration
+            </h1>
+            <p className="mt-2 text-muted">
+              Create your MindCare account using{" "}
+              <span className="text-foreground font-medium">{universityHint}</span>
+            </p>
+          </div>
 
         {step === 1 ? (
-          <form onSubmit={onContinue} className="space-y-4">
+          <form onSubmit={onContinue} method="post" className="space-y-4">
             <div className="space-y-1">
-              <label htmlFor="email" className="text-sm text-muted">
+              <label htmlFor="email" className="text-sm font-medium text-foreground">
                 University Email
               </label>
               <input
@@ -154,13 +168,13 @@ export default function RegisterPage() {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
                 required
               />
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="password" className="text-sm text-muted">
+              <label htmlFor="password" className="text-sm font-medium text-foreground">
                 Password
               </label>
               <input
@@ -170,14 +184,14 @@ export default function RegisterPage() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
                 required
                 minLength={8}
               />
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="name" className="text-sm text-muted">
+              <label htmlFor="name" className="text-sm font-medium text-foreground">
                 Your Name
               </label>
               <input
@@ -186,7 +200,7 @@ export default function RegisterPage() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
                 required
                 maxLength={80}
               />
@@ -204,15 +218,15 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              className="w-full rounded-lg bg-teal px-4 py-2 font-semibold text-background shadow-tealGlow"
+              className="w-full rounded-xl bg-teal px-4 py-3 font-semibold text-background shadow-tealGlow"
             >
               Continue
             </button>
           </form>
         ) : (
-          <form onSubmit={onRegister} className="space-y-5">
+          <form onSubmit={onRegister} method="post" className="space-y-5">
             <div className="space-y-1">
-              <label htmlFor="department" className="text-sm text-muted">
+              <label htmlFor="department" className="text-sm font-medium text-foreground">
                 Department
               </label>
               <input
@@ -221,13 +235,13 @@ export default function RegisterPage() {
                 type="text"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
                 required
               />
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="year" className="text-sm text-muted">
+              <label htmlFor="year" className="text-sm font-medium text-foreground">
                 Year
               </label>
               <input
@@ -238,13 +252,13 @@ export default function RegisterPage() {
                 max={10}
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
                 required
               />
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="preferredLanguage" className="text-sm text-muted">
+              <label htmlFor="preferredLanguage" className="text-sm font-medium text-foreground">
                 Preferred Language
               </label>
               <select
@@ -252,7 +266,7 @@ export default function RegisterPage() {
                 name="preferredLanguage"
                 value={preferredLanguage}
                 onChange={(e) => setPreferredLanguage(e.target.value)}
-                className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 outline-none focus:border-teal/70"
+                className={inputClass}
               >
                 {languageOptions.map((l) => (
                   <option key={l.code} value={l.code}>
@@ -270,7 +284,7 @@ export default function RegisterPage() {
                   return (
                     <label
                       key={g.id}
-                      className="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2 cursor-pointer"
+                      className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/45 px-3 py-2.5 cursor-pointer"
                     >
                       <input
                         type="checkbox"
@@ -301,7 +315,7 @@ export default function RegisterPage() {
             <div className="flex gap-3">
               <button
                 type="button"
-                className="flex-1 rounded-lg border border-white/15 bg-white/5 px-4 py-2 font-semibold"
+                className="flex-1 rounded-xl border border-white/20 bg-white/50 px-4 py-3 font-semibold"
                 onClick={() => setStep(1)}
               >
                 Back
@@ -309,13 +323,21 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={busy}
-                className="flex-1 rounded-lg bg-teal px-4 py-2 font-semibold text-background shadow-tealGlow disabled:opacity-60"
+                className="flex-1 rounded-xl bg-teal px-4 py-3 font-semibold text-background shadow-tealGlow disabled:opacity-60"
               >
                 {busy ? "Creating..." : "Create Account"}
               </button>
             </div>
           </form>
         )}
+
+          <p className="mt-8 text-center text-sm text-muted">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="font-semibold text-teal hover:underline underline-offset-4">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

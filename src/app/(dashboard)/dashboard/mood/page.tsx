@@ -13,19 +13,19 @@ const timeOfDayOptions = [
 ] as const;
 
 const emotionOptions = [
-  "CALM",
-  "ANXIOUS",
-  "HAPPY",
-  "SAD",
-  "STRESSED",
-  "LONELY",
-  "ANGRY",
-  "OVERWHELMED",
-  "MOTIVATED",
-  "NUMB",
-  "GRATEFUL",
-  "TIRED",
-];
+  { code: "CALM", emoji: "😌" },
+  { code: "ANXIOUS", emoji: "😟" },
+  { code: "HAPPY", emoji: "😊" },
+  { code: "SAD", emoji: "😢" },
+  { code: "STRESSED", emoji: "😣" },
+  { code: "LONELY", emoji: "🥺" },
+  { code: "ANGRY", emoji: "😠" },
+  { code: "OVERWHELMED", emoji: "🤯" },
+  { code: "MOTIVATED", emoji: "💪" },
+  { code: "NUMB", emoji: "😶" },
+  { code: "GRATEFUL", emoji: "🙏" },
+  { code: "TIRED", emoji: "😴" },
+] as const;
 
 type TimeOfDayValue = (typeof timeOfDayOptions)[number]["value"];
 
@@ -200,10 +200,10 @@ export default function MoodCheckInPage() {
           <div className="text-sm text-muted">{t("mood.emotionsTitle")}</div>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {emotionOptions.map((emo) => {
-              const checked = emotions.includes(emo);
+              const checked = emotions.includes(emo.code);
               return (
                 <label
-                  key={emo}
+                  key={emo.code}
                   className={[
                     "flex items-center gap-3 rounded-lg border px-3 py-2 cursor-pointer transition-colors",
                     checked
@@ -214,10 +214,13 @@ export default function MoodCheckInPage() {
                   <input
                     type="checkbox"
                     checked={checked}
-                    onChange={() => toggleEmotion(emo)}
-                    aria-label={t(`mood.emotions.${emo}`)}
+                    onChange={() => toggleEmotion(emo.code)}
+                    aria-label={t(`mood.emotions.${emo.code}`)}
                   />
-                  <span className="text-sm">{t(`mood.emotions.${emo}`)}</span>
+                  <span className="text-lg" aria-hidden>
+                    {emo.emoji}
+                  </span>
+                  <span className="text-sm">{t(`mood.emotions.${emo.code}`)}</span>
                 </label>
               );
             })}

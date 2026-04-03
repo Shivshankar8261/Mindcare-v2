@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "lsof -ti:3002 | xargs kill -9 2>/dev/null || true",
-    "dev": "rm -rf .next && prisma generate && NEXT_DISABLE_WEBPACK_CACHE=1 next dev -p 3002",
-    "dev:clean": "lsof -ti:3002 | xargs kill -9 2>/dev/null || true && rm -rf .next src/generated/prisma && prisma generate && NEXT_DISABLE_WEBPACK_CACHE=1 next dev -p 3002",
+    "predev": "pkill -f \"next dev.*3002\" 2>/dev/null || true; lsof -ti:3002 | xargs kill -9 2>/dev/null || true",
+    "dev": "rm -rf .next node_modules/.cache && prisma generate && next dev -p 3002",
+    "dev:clean": "lsof -ti:3002 | xargs kill -9 2>/dev/null || true && rm -rf .next node_modules/.cache src/generated/prisma && prisma generate && next dev -p 3002",
+    "prebuild": "rm -rf .next node_modules/.cache",
     "build": "prisma generate && next build",
     "start": "next start -p 3002",
     "start:stable": "rm -rf .next && prisma generate && next build && next start -p 3002",

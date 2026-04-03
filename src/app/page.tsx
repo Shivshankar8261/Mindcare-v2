@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, MessageCircle, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 
+import MindCareMark from "@/components/brand/MindCareMark";
+
 const helplines = [
   { label: "iCall", value: "9152987821" },
   { label: "Vandrevala Foundation", value: "1860-2662-345" },
@@ -135,20 +137,11 @@ export default function LandingPage() {
       <div className="sticky top-0 z-40">
         <div className="glass-card mx-4 sm:mx-6 mt-3 px-4 py-2 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <Link
+            <MindCareMark
               href="/"
-              className="shrink-0 rounded-xl bg-white px-2 py-1.5 shadow-sm ring-1 ring-black/10 transition hover:ring-black/20"
+              variant="lg"
               aria-label="MindCare — Vidyashilp University, home"
-            >
-              <Image
-                src="/mindcare-logo.png"
-                alt="MindCare — Vidyashilp University. AI-powered emotional wellness platform."
-                width={280}
-                height={153}
-                className="h-8 w-auto sm:h-10 md:h-11"
-                priority
-              />
-            </Link>
+            />
             <div className="hidden sm:block h-8 w-px bg-white/15 shrink-0" aria-hidden />
             <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-sm">
               Crisis Support
@@ -170,8 +163,9 @@ export default function LandingPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div className="relative">
+            {/* initial={false} keeps hero visible in HTML before hydration (avoids "blank" UI if JS chunks lag). */}
             <motion.div
-              initial={{ opacity: 0, y: 14 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             >
@@ -186,7 +180,7 @@ export default function LandingPage() {
                 <AnimatePresence mode="wait">
                   <motion.h1
                     key={headlineIndex}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 1, y: 0 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.25 }}
@@ -221,6 +215,12 @@ export default function LandingPage() {
                 >
                   Login
                 </Link>
+                <Link
+                  href="/auth/admin"
+                  className="rounded-xl border border-saffron/35 bg-white/5 px-6 py-3 font-semibold text-foreground hover:bg-white/10 text-center shadow-saffronGlow"
+                >
+                  Admin Login
+                </Link>
               </div>
 
               <div className="mt-6 text-sm text-muted">
@@ -231,7 +231,7 @@ export default function LandingPage() {
 
           <div className="relative">
             <motion.div
-              initial={{ opacity: 0, y: 18 }}
+              initial={false}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.45, delay: 0.05 }}
               className="glass-card p-6"
@@ -255,7 +255,7 @@ export default function LandingPage() {
                 ].map((t, idx) => (
                   <motion.div
                     key={idx}
-                    initial={{ opacity: 0, x: 12 }}
+                    initial={false}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.25, delay: idx * 0.05 }}
                     className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 flex items-start gap-3"
@@ -300,7 +300,7 @@ export default function LandingPage() {
             return (
               <motion.div
                 key={f.title}
-                initial={{ opacity: 0, y: 16 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.35, delay: idx * 0.04 }}
@@ -333,7 +333,7 @@ export default function LandingPage() {
           ].map((s, idx) => (
             <motion.div
               key={s.step}
-              initial={{ opacity: 0, y: 18 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.35, delay: idx * 0.05 }}
@@ -361,7 +361,7 @@ export default function LandingPage() {
           <AnimatePresence mode="wait">
             <motion.div
               key={testIdx}
-              initial={{ opacity: 0, y: 12 }}
+              initial={{ opacity: 1, y: 0 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.25 }}

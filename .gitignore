@@ -42,4 +42,5 @@ next-env.d.ts
 .env.local
 .env.*.local
 dev.db
+cookies.txt
 .cookies.txt

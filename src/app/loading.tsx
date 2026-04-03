@@ -1,13 +1,16 @@
-export default function Loading() {
+export default function RootLoading() {
   return (
-    <main className="min-h-screen px-4 py-10 max-w-2xl mx-auto">
-      <div className="glass-card p-6">
-        <div className="text-sm text-muted">Loading MindCare…</div>
-        <div className="mt-2 text-2xl font-display tracking-tight">
-          Please wait
+    <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="glass-card max-w-md w-full p-8 text-center space-y-4">
+        <div className="inline-flex h-10 w-10 rounded-full border-2 border-teal/40 border-t-teal animate-spin" />
+        <div>
+          <div className="text-sm text-muted">MindCare</div>
+          <div className="mt-1 font-display text-xl tracking-tight text-foreground">
+            Loading…
+          </div>
         </div>
+        <p className="text-sm text-muted">Preparing your workspace.</p>
       </div>
     </main>
   );
 }
-

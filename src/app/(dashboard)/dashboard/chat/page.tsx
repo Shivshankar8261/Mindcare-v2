@@ -22,8 +22,29 @@ export default function ChatPage() {
   const [error, setError] = useState<string | null>(null);
 
   const suggested = useMemo(
-    () => [t("chat.prompt1"), t("chat.prompt2"), t("chat.prompt3"), t("chat.prompt4")],
-    [t]
+    () => [
+      "I feel anxious before exams. What can I do right now?",
+      "How can I calm down in 2 minutes?",
+      "I feel lonely in hostel. Can you help?",
+      "I overthink at night and cannot sleep.",
+      "How do I handle academic pressure this week?",
+      "I feel low and unmotivated today.",
+      "Can you suggest a simple grounding exercise?",
+      "How can I build a healthy study routine?",
+      "I had a bad day. Help me reset.",
+      "How do I stop comparing myself with others?",
+      "Can we create a small self-care plan for today?",
+      "I had a conflict with a friend. What should I do?",
+      "How can I manage social anxiety in class?",
+      "I feel burnout. What are early signs?",
+      "Can you guide me through breathing now?",
+      "How can I improve sleep quality during exams?",
+      "Give me 3 positive coping strategies for stress.",
+      "How to ask for help without feeling weak?",
+      "I feel emotionally numb. What first step can I take?",
+      "Help me with a weekly mental wellness checklist.",
+    ],
+    []
   );
 
   useEffect(() => {
@@ -118,8 +139,8 @@ export default function ChatPage() {
           </div>
 
           <aside className="w-full lg:w-80 shrink-0 space-y-3">
-            <div className="text-sm text-muted">{t("chat.suggestedPrompts")}</div>
-            <div className="space-y-2">
+            <div className="text-sm text-muted">{t("chat.suggestedPrompts")} (20)</div>
+            <div className="space-y-2 max-h-72 overflow-auto pr-1">
               {suggested.map((s) => (
                 <button
                   key={s}

@@ -16,6 +16,7 @@ type AuthSessionUser = {
   streak: number;
   xpPoints: number;
   wellnessLevel: WellnessLevel;
+  consentCounselor: boolean;
 };
 
 export const authOptions: NextAuthOptions = {
@@ -41,30 +42,39 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password;
         if (!email || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { email } });
-        if (!user?.passwordHash) return null;
+        try {
+          const user = await prisma.user.findUnique({ where: { email } });
+          if (!user?.passwordHash) return null;
 
-        const ok = await bcrypt.compare(password, user.passwordHash);
-        if (!ok) return null;
+          const ok = await bcrypt.compare(password, user.passwordHash);
+          if (!ok) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name ?? undefined,
-          role: user.role,
-          department: user.department,
-          year: user.year,
-          preferredLanguage: user.preferredLanguage,
-          streak: user.streak,
-          xpPoints: user.xpPoints,
-          wellnessLevel: user.wellnessLevel,
-        };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name ?? undefined,
+            role: user.role,
+            department: user.department,
+            year: user.year,
+            preferredLanguage: user.preferredLanguage,
+            streak: user.streak,
+            xpPoints: user.xpPoints,
+            wellnessLevel: user.wellnessLevel,
+            consentCounselor: user.consentCounselor,
+          };
+        } catch {
+          return null;
+        }
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim()
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
   ],
   pages: {
     signIn: "/auth/login",
@@ -82,20 +92,26 @@ export const authOptions: NextAuthOptions = {
         token.streak = u.streak;
         token.xpPoints = u.xpPoints;
         token.wellnessLevel = u.wellnessLevel;
+        token.consentCounselor = u.consentCounselor;
       }
 
       // Keep JWT in sync with the database so language changes apply immediately.
       // This avoids the “always English” issue after updating `preferredLanguage`.
       if (token.id && typeof token.id === "string") {
-        const dbUser = await prisma.user.findUnique({ where: { id: token.id } });
-        if (dbUser) {
-          token.role = dbUser.role;
-          token.department = dbUser.department;
-          token.year = dbUser.year;
-          token.preferredLanguage = dbUser.preferredLanguage;
-          token.streak = dbUser.streak;
-          token.xpPoints = dbUser.xpPoints;
-          token.wellnessLevel = dbUser.wellnessLevel;
+        try {
+          const dbUser = await prisma.user.findUnique({ where: { id: token.id } });
+          if (dbUser) {
+            token.role = dbUser.role;
+            token.department = dbUser.department;
+            token.year = dbUser.year;
+            token.preferredLanguage = dbUser.preferredLanguage;
+            token.streak = dbUser.streak;
+            token.xpPoints = dbUser.xpPoints;
+            token.wellnessLevel = dbUser.wellnessLevel;
+            token.consentCounselor = dbUser.consentCounselor;
+          }
+        } catch {
+          // Avoid 500 on /api/auth/session if DB is migrating or temporarily locked.
         }
       }
       return token;
@@ -112,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         session.user.streak = t.streak ?? session.user.streak ?? 0;
         session.user.xpPoints = t.xpPoints ?? session.user.xpPoints ?? 0;
         session.user.wellnessLevel = t.wellnessLevel ?? session.user.wellnessLevel;
+        session.user.consentCounselor = t.consentCounselor ?? session.user.consentCounselor ?? false;
       }
       return session;
     },
